@@ -4,19 +4,29 @@ var  crypto = require('crypto');
 var config_cxense = require('./config/config_cxense.conf');
 var https = require('https');
 
+var count = 0;
+var username = 'cxense-team@dac.co.jp';
+var apiKey = config_cxense.api_key;
+var date = new Date().toISOString();
+var hmac = crypto.createHmac('sha256', apiKey).update(date).digest('hex');
+
+
+
+
 exports.handler = (event, context, callback) => {
-    //console.log('Received event:', JSON.stringify(event, null, 2));
     console.log('cxense userinfo update is called');
-    //callback(null, "response from cxense userinfo update");  // Echo back the first key value
+
+
+    console.log(event);
+    retrieve_profile_user(context);
+    retrieve_traffic_keyword();
+    retrieve_traffic_event();
+};
+
+function retrieve_profile_user(context){
 
     var str_concept = "dac";
 
-    console.log(event);
-
-	var username = 'cxense-team@dac.co.jp';
-	var apiKey = config_cxense.api_key;
-	var date = new Date().toISOString();
-	var hmac = crypto.createHmac('sha256', apiKey).update(date).digest('hex');
 	var filter_obj = { "type":"keyword","group":"concept","item":str_concept };
 	var filters_array = new Array(filter_obj);
 	var fields_array = ["events","urls","activeTime"];
@@ -61,6 +71,19 @@ exports.handler = (event, context, callback) => {
 	req.end();
 
 
-    // callback('Something went wrong');
-};
+
+}
+
+function retrieve_traffic_keyword(){
+
+
+
+}
+
+
+function retrieve_traffic_event(){
+
+}
+
+
 

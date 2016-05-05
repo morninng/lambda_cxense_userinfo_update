@@ -1,0 +1,14 @@
+
+（１）CXENSEコマンドの呼び出し
+データ取得を、ユーザ関連のものを三つようい
+三つが終了したときに終了するようにする。
+
+（２）user idをAuthorizeしたHTTP headerから取得する。
+
+（３）DynamoDBへの保存
+
+
+
+
+（４）Authが失敗しないように、Cookieの寿命をSessionとユーザIDでそろえる。
+　
