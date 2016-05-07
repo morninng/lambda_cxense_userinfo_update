@@ -4,10 +4,16 @@
 三つが終了したときに終了するようにする。
 
 （２）user idをAuthorizeしたHTTP headerから取得する。
+  https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/getting-started-mappings.html
+  ここにデータマッピングのマッピング方法が記載されている。
+  https://gyazo.com/82dade41ce53733c68ec8975effb9879
 
+  Authorization データフィールドに同様の方法でアクセスしてみる。
+
+  
 （３）DynamoDBへの保存
 
-
+ 
 
 
 （４）Authが失敗しないように、Cookieの寿命をSessionとユーザIDでそろえる。

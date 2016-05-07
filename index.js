@@ -11,22 +11,25 @@ var date = new Date().toISOString();
 var hmac = crypto.createHmac('sha256', apiKey).update(date).digest('hex');
 
 
-
-
 exports.handler = (event, context, callback) => {
-    console.log('cxense userinfo update is called');
-
-
+    console.log('----------cxense userinfo update is called---------');
     console.log(event);
-    retrieve_profile_user(context);
-    retrieve_traffic_keyword();
-    retrieve_traffic_event();
+
+    var userid = event.userid;
+    console.log("userid is " + userid);
+
+
+    retrieve_profile_user(event, context, userid);
+    retrieve_traffic_keyword(event, context, userid);
+    retrieve_traffic_event(event, context, userid);
+
 };
 
-function retrieve_profile_user(context){
+function retrieve_profile_user(event, context, userid){
+
+	console.log("--retrieve_profile_user start--");
 
     var str_concept = "dac";
-
 	var filter_obj = { "type":"keyword","group":"concept","item":str_concept };
 	var filters_array = new Array(filter_obj);
 	var fields_array = ["events","urls","activeTime"];
@@ -54,36 +57,30 @@ function retrieve_profile_user(context){
 		console.log(res.headers);
 		res.setEncoding('utf8');
 		res.on('data', function(chunk){
-			console.log("data");
-			console.log(chunk)
+			console.log("data chunk");
+			console.log(chunk);
 		});
 		res.on('end', function(){
-			console.log("end");
-    		context.succeed("end");
+			console.log("request ended successfully in retrieve_profile_user");
+    		context.succeed(event);
 		});
 	});
 
 	req.on("error", function(error){
-		console.log(error);
-		context.fail(error);
+		console.log("request fail fail fail in retrieve_profile_user");
+		context.succeed(event);
 	});
 
 	req.end();
 
-
-
 }
 
-function retrieve_traffic_keyword(){
-
+function retrieve_traffic_keyword(event, context, userid){
 
 
 }
 
 
-function retrieve_traffic_event(){
+function retrieve_traffic_event(event, context, userid){
 
 }
-
-
-
