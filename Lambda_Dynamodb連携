@@ -1,0 +1,90 @@
+Dynamoとの連携で使ったのは次の２関数
+SecondaryIndexをもちいて、tuuidでデータを取得し、PrimaryKeyのemailを取得する。
+PrimaryKeyを用いて、UpdateItemで本体のデータをアップデートする。
+　→ここで、UpdateItemにおいてデータ変更を、SecondaryIndexでデータを検索して設定とは直接はできない。
+　　→SecondaryIndexテーブルにはメインのデータがないため。
+PrimaryKeyで検索して変更すれば、SecondaryIndexのほうのデータも自動で変更される。
+
+
+データの指定は属性名と属性値で、実際の値を設定する方法がことなる。
+ExpressionAttributeValuesで属性値の指定を行い、
+ExpressionAttributeNamesで属性名の指定を行う。
+        UpdateExpression: "SET #attribute_name = :attribute_value",
+        ExpressionAttributeValues: { 
+            ":attribute_value": in_attr_value
+        },
+        ExpressionAttributeNames: {
+            "#attribute_name": in_attr_name
+        },
+これにより、同じ関数を別の属性名による属性値の変更が可能になる。
+
+
+function retrieve_primary_key(event, context, userid){
+
+	var params = {
+	    TableName: "User",
+	    IndexName: "TuuidIndex",
+	    KeyConditionExpression: "tuuid = :tuuid_value",
+	    ExpressionAttributeValues: {
+	        ":tuuid_value": userid
+	    },
+	    ProjectionExpression: "first_name, last_name, email"
+	};
+	docClient.query(params, function(err, data) {
+	    if (err){
+	        console.log(JSON.stringify(err, null, 2));
+	    }else{
+	        console.log(JSON.stringify(data, null, 2));
+	        if(!data.Items[0]){
+	        	console.log("no user with this id" + data);
+	        	context.succeed(event);
+	        	return;
+	        }
+	        var email_address = data.Items[0].email;
+	        if(email_address){
+	            console.log("primary key is " + email_address)
+	            //update_name(email_address, "aaa");
+	            user_primary_key = email_address;
+	        }else{
+	        	console.log("primary key cannot be found");
+	        	context.succeed(event);
+	        	return;
+	        }
+	    }
+	});
+}
+
+function set_userdata(event, context, in_email_address, in_attr_name, in_attr_value){
+
+	console.log("-------------set_userdata is called: key" + in_attr_name + "--------------")
+    var params = {
+        TableName: "User",
+        Key: {
+            "email":in_email_address
+        },
+        UpdateExpression: "SET #attribute_name = :attribute_value",
+        ExpressionAttributeValues: { 
+            ":attribute_value": in_attr_value
+        },
+        ExpressionAttributeNames: {
+            "#attribute_name": in_attr_name
+        },
+        ReturnValues: "ALL_NEW"
+    };
+    docClient.update(params, function(err, data) {
+        if (err){
+            console.log(JSON.stringify(err, null, 2));
+        }
+        else{
+            console.log(JSON.stringify(data, null, 2));
+            console.log("storing data succeed. key is " + in_attr_name);
+        }
+		count++;
+		if(count==api_num){
+			context.succeed(event);
+    	}
+    });
+}
+
+
+
